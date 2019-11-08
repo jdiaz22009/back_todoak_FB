@@ -17,7 +17,7 @@ app.use(cors())
 
 // connect mongoose
 
-mongoose.connect(config.db.mongodb, {
+mongoose.connect(config.db.mongodb.atlas, {
   autoIndex: false,
   useCreateIndex: true,
   useNewUrlParser: true,
@@ -26,7 +26,6 @@ mongoose.connect(config.db.mongodb, {
 
 mongoose.connection.on('connected', () => {
   console.log('Mongoose is connected')
-  exports.api = functions.https.onRequest(app)
 })
 
 mongoose.connection.on('Disconnected', function () {
@@ -40,6 +39,7 @@ process.on('SIGINT', function () {
   });
 });
 
+exports.api = functions.https.onRequest(app)
 
 
 
