@@ -7,6 +7,8 @@ const morgan = require('morgan')
 const mongoose = require('mongoose')
 const config = require('./settings/db/database')
 
+const routesConfig = require('./routes/routes')
+
 const app = express()
 
 // settings
@@ -16,14 +18,13 @@ app.use(morgan('dev'))
 app.use(cors())
 
 // connect mongoose
-
 mongoose.connect(config.db.mongodb.atlas, {
   autoIndex: false,
   useCreateIndex: true,
   useNewUrlParser: true,
-  useFindAndModify: false
+  useFindAndModify: false,
+  useUnifiedTopology: true
 })
-
 mongoose.connection.on('connected', () => {
   console.log('Mongoose is connected')
 })
@@ -38,12 +39,9 @@ process.on('SIGINT', function () {
     process.exit(0)
   });
 });
+routesConfig(app)
 
 exports.api = functions.https.onRequest(app)
-
-
-
-
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -51,3 +49,4 @@ exports.api = functions.https.onRequest(app)
 // exports.helloWorld = functions.https.onRequest((request, response) => {
 //  response.send("Hello from Firebase!");
 // });
+
