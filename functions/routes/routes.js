@@ -1,13 +1,12 @@
 'use strict'
 
-const categories = require('../components/categories')
-
 //routes import
+const categories = require('../components/categories')
+const webClients = require('../components/users/clients')
 
 module.exports = app => {
-
-    
-    // route categorie
-    app.use("/v1/categorie", categories);
-
+    // router authClients
+    app.use('/v1/web', webClients)
+    // router categorie
+    app.use('/v1/categorie', categories);
 }
