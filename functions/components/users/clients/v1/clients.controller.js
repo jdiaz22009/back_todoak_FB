@@ -15,7 +15,7 @@ controller.createdClients = (req, res) => {
 
 controller.loginClients = (req, res) => {
   const { body } = req;
-  service.loginClients(body)
+  return service.loginClients(body)
     .then(result => {
       res.status(200).send(result);
     })
@@ -25,7 +25,7 @@ controller.loginClients = (req, res) => {
 }
 
 controller.getAllClient = (req, res) => {
-  service.getAllClient()
+  return service.getAllClient()
     .then(result => {
       res.status(200).send(result);
     })
@@ -36,7 +36,7 @@ controller.getAllClient = (req, res) => {
 
 controller.getByIdClient = (req, res) => {
   const { params } = req;
-  service.getByIdClient(params['id'])
+  return service.getByIdClient(params['id'])
     .then(result => {
       res.status(200).send(result);
     })
@@ -65,7 +65,7 @@ controller.updateClient = (req, res) => {
 
 controller.deleteClients = (req, res) => {
   const { params } = req;
-  service.deleteClients(params['id'])
+  return service.deleteClients(params['id'])
     .then(result => {
       res.status(200).send(result);
     })
