@@ -19,6 +19,7 @@ const ClientSchema = new Schema({
   department: { type: String, default: '' },
   city_residence: { type: String, default: '' },
   rol: { type: String, default: '' },
+  isActive: { type: Boolean, default: true },
   created_day: { type: String, default: '' },
   created_month: { type: String, default: '' },
   created_year: { type: String, default: '' },
