@@ -357,7 +357,145 @@ services.getLocation = (data) => {
 }
 
 
+services.changeStatus = (id_tecnico, data) => new Promise((resolve, reject) => {
+  technicalSchema.findById({ _id: id_tecnico }, function (error, userTec) {
+    if (userTec) {
+      technicalSchema.findByIdAndUpdate(userTec._id, data, { new: true }, function (
+        error,
+        tecnico
+      ) {
+        if (error) {
+          const fail = {
+            ok: false,
+            status: 400,
+            message: "Error en el estado del tecnico",
+            error
+          };
+          reject(fail)
+        } else {
+          const succes = {
+            ok: true,
+            status: 200,
+            userTec
+          };
+          resolve(succes)
+        }
+      });
+    } else {
+      const err = {
+        ok: false,
+        status: 400,
+        message: "Error el usuario no se ha encontrado o no existe",
+        error
+      };
+      reject(err)
+    }
+  })
+})
 
+services.technicalAvailable = params => new Promise((resolve, reject) => {
+  technicalSchema.find(params).exec((error, tecnico) => {
+    if (error) {
+      const fail = {
+        ok: false,
+        message: "Error al traer el tecnico",
+        code: 400
+      };
+      reject(fail)
+    } else {
+      const succe = {
+        ok: true,
+        code: 200,
+        tecnico
+      }
+      resolve(succe)
+    }
+  })
+})
+
+
+services.getAllUser = () => new Promise((resolve, reject) => {
+  technicalSchema.find({}).exec((err, result) => {
+    if (err) {
+      const error = {
+        ok: false,
+        status: 500,
+        err
+      };
+      reject(error)
+    } else {
+      resolve({ db: result, ok: true })
+    }
+  })
+})
+
+services.getAllUserClient = () => new Promise((resolve, reject) => {
+  technicalSchema.find({ role: 3 }).exec((err, result) => {
+    if (err) {
+      const error = {
+        ok: false,
+        status: 500,
+        err
+      };
+      reject(error)
+    } else {
+      resolve({ db: result, ok: true })
+    }
+  })
+})
+
+
+getAllTecnicos = () => new Promise((resolve, reject) => {
+  technicalSchema.find({ role: 3 })
+    .populate({ path: "estado_rrhh" })
+    .exec((err, result) => {
+      if (err) {
+        const error = {
+          ok: false,
+          status: 500,
+          err
+        }
+        reject(error)
+      }
+      resolve({ db: result, ok: true })
+    })
+})
+
+
+
+
+
+
+
+
+
+
+
+services.sendNotificationPush = (role, data) => new Promise((resolve, reject) => {
+  if (role === '3') {
+    technicalSchema.find({ role }).populate({ path: "tokens", model: PushNotifications }).exec((err, docs) => {
+      if (err) {
+        reject(err)
+      } else {
+        let tokens = []
+        docs.map(user => {
+          if (user["role"] === 3) {
+            tokens.push(user["tokens"]["firetoken"]);
+          }
+        });
+        let notification = {
+          title: data.titulo,
+          body: data.cuerpo
+        };
+        let payload = {
+          type: "notification_reasigservicioweb",
+          id: "notification_reasigservicioweb"
+        };
+        resolve({ notification, payload, tokens })
+      }
+    })
+  }
+})
 
 
 
