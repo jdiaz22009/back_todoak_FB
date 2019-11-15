@@ -15,12 +15,8 @@ firebase.messagingSendToDevice = (notification, data, tokens) => new Promise((re
     data
   }
   firebaseAdmin.messaging().sendToDevice(tokens, message)
-    .then((response) => {
-      resolve({ message: response, data: message })
-    })
-    .catch((error) => {
-      reject(error)
-    })
+    .then((response) => resolve({ message: response, data: message }))
+    .catch((error) => reject(error))
 })
 
 module.exports = firebase

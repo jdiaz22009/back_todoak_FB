@@ -19,9 +19,9 @@ middleware.authentication = (req, res, next) => {
     } catch (error) {
       return res.status(401).send({ message: 'El token no es valido' })
     }
-    req.user = payload;
-    next();
+    req.user = payload
   }
+  return next()
 }
 
 middleware.generateToken = (data) => {

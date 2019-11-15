@@ -17,12 +17,12 @@ services.createdClients = data => new Promise((resolve, reject) => {
   clientSchema.findOne({ identification: data['identification'] })
     .exec((err, userFind) => {
       if (err) {
-        reject({
+        reject(new Error({
           code: 500,
           status: "Error server internal",
           err,
           ok: false
-        });
+        }))
       } else {
         if (userFind) {
           resolve({
@@ -35,12 +35,12 @@ services.createdClients = data => new Promise((resolve, reject) => {
           clients['password'] = bcrypt.hashSync(data['password'], 10);
           clientSchema.create(users, (err, createUser) => {
             if (err) {
-              reject({
+              reject(new Error({
                 code: 500,
                 status: 'Error server internal',
                 err,
                 ok: false
-              });
+              }))
             } else {
               resolve({
                 code: 200,
@@ -59,11 +59,11 @@ services.createdClients = data => new Promise((resolve, reject) => {
 services.loginClients = data => new Promise((resolve, reject) => {
   clientSchema.findOne({ email: data['email'] }).exec((err, findUser) => {
     if (err) {
-      reject({
+      reject(new Error({
         code: 500,
         status: "Internal server error",
         error
-      })
+      }))
     } else {
       if (findUser) {
         let password = bcrypt.compareSync(data['password'], findUser['password'])
@@ -77,12 +77,12 @@ services.loginClients = data => new Promise((resolve, reject) => {
 
           pushNotificationsSchema.findOne({ uuid: data['uuid'] }).exec((err, pushNoti) => {
             if (err) {
-              reject({
+              reject(new Error({
                 code: 500,
                 status: "Error server internal",
                 err,
                 ok: false
-              })
+              }))
             } else {
               if (pushNoti) {
                 PushNotifications.findByIdAndUpdate(
@@ -91,12 +91,12 @@ services.loginClients = data => new Promise((resolve, reject) => {
                   { new: true },
                   (err, updatePush) => {
                     if (err) {
-                      reject({
+                      reject(new Error({
                         code: 500,
                         status: 'Error server internal',
                         err,
                         ok: false
-                      })
+                      }))
                     } else {
                       User.findByIdAndUpdate(
                         findUser['_id'],
@@ -104,12 +104,12 @@ services.loginClients = data => new Promise((resolve, reject) => {
                         { new: true },
                         (err, userUpdate) => {
                           if (err) {
-                            reject({
+                            reject(new Error({
                               code: 500,
                               status: 'Error server internal',
                               err,
                               ok: false
-                            })
+                            }))
                           } else {
                             console.log(JSON.stringify(userUpdate));
                           }
@@ -121,12 +121,12 @@ services.loginClients = data => new Promise((resolve, reject) => {
               } else {
                 pushNotificationsSchema.create(token, (err, createToken) => {
                   if (err) {
-                    reject({
+                    reject(new Error({
                       code: 500,
                       status: 'Error server internal',
                       err,
                       ok: false
-                    });
+                    }))
                   } else {
                     clientSchema.findByIdAndUpdate(
                       createUser['_id'],
@@ -134,12 +134,12 @@ services.loginClients = data => new Promise((resolve, reject) => {
                       { new: true },
                       (err, userUpdate) => {
                         if (err) {
-                          reject({
+                          reject(new Error({
                             code: 500,
                             status: 'Error server internal',
                             err,
                             ok: false
-                          });
+                          }))
                         } else {
                           console.log(JSON.stringify(userUpdate));
                         }
@@ -164,6 +164,7 @@ services.loginClients = data => new Promise((resolve, reject) => {
         })
       }
     }
+    return false
   })
 })
 
@@ -198,12 +199,13 @@ services.getByIdClient = id => new Promise((resolve, reject) => {
 })
 
 services.deleteClients = id => new Promise((resolve, reject) => {
-  clientSchema.findByIdAndUpdate(id, { isActive: false }, function (error, objUser) {
+  clientSchema.findByIdAndUpdate(id, { isActive: false }).exec((error, objUser) => {
     if (error) {
       reject(error);
     } else {
       resolve({ ok: true });
     }
+    return
   })
 })
 

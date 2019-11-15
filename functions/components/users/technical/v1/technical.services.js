@@ -28,12 +28,12 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
 
   TechnicalSchema.findOne({ email: data['email'] }).exec((err, userFind) => {
     if (err) {
-      return reject({
+      return reject(new Error({
         code: 500,
         status: 'Error server internal',
         err,
         ok: false
-      });
+      }))
     } else {
       if (userFind) {
         return resolve({
@@ -46,12 +46,12 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
         technicalS['password'] = bcrypt.hashSync(data['password'], 10);
         TechnicalSchema.create(technicalS, (err, createUser) => {
           if (err) {
-            return reject({
+            return reject(new Error({
               code: 500,
               status: 'Error server internal',
               err,
               ok: false
-            });
+            }))
           } else {
             const token = new PushNotificationsSchema({
               firetoken: data['firetoken'],
@@ -62,12 +62,12 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
             PushNotificationsSchema.findOne({ uuid: data['uuid'] }).exec(
               (err, pushNoti) => {
                 if (err) {
-                  return reject({
+                  return reject(new Error({
                     code: 500,
                     status: 'Error server internal',
                     err,
                     ok: false
-                  });
+                  }))
                 } else {
                   if (pushNoti) {
                     PushNotificationsSchema.findByIdAndUpdate(
@@ -76,12 +76,12 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
                       { new: true },
                       (err, updatePush) => {
                         if (err) {
-                          return reject({
+                          return reject(new Error({
                             code: 500,
                             status: 'Error server internal',
                             err,
                             ok: false
-                          });
+                          }))
                         } else {
                           TechnicalSchema.findByIdAndUpdate(
                             createUser['_id'],
@@ -89,29 +89,29 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
                             { new: true },
                             (err, userUpdate) => {
                               if (err) {
-                                return reject({
+                                return reject(new Error({
                                   code: 500,
                                   status: 'Error server internal',
                                   err,
                                   ok: false
-                                });
+                                }))
                               } else {
                                 console.log("push token", userUpdate);
                               }
-                            }
-                          );
+                              return false
+                            })
                         }
-                      }
-                    );
+                        return false
+                      })
                   } else {
                     PushNotificationsSchema.create(token, (err, createToken) => {
                       if (err) {
-                        return reject({
+                        return reject(new Error({
                           code: 500,
                           status: 'Error server internal',
                           err,
                           ok: false
-                        });
+                        }))
                       } else {
                         TechnicalSchema.findByIdAndUpdate(
                           createUser['_id'],
@@ -119,59 +119,60 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
                           { new: true },
                           (err, userUpdate) => {
                             if (err) {
-                              return reject({
+                              return reject(new Error({
                                 code: 500,
                                 status: 'Error server internal',
                                 err,
                                 ok: false
-                              });
+                              }))
                             } else {
                               console.log("push token", userUpdate);
                             }
-                          }
-                        );
+                            return false
+                          })
                       }
-                    });
+                      return false
+                    })
                   }
                 }
-              }
-            );
+                return false
+              })
             if (data['role'] === 2) {
               var location = new LocationsSchema({
                 nameLocation: data['nameLocation'],
                 addressLocation: data['addressLocation'],
                 lat: data['lat'],
                 lng: data['lng']
-              });
+              })
               LocationsSchema.create(location, (err, createLocation) => {
                 if (err) {
-                  return reject({
+                  return reject(new Error({
                     message: "Error, por favor espere",
                     code: 504,
                     ok: false
-                  });
+                  }))
                 } else {
                   TechnicalSchema.findByIdAndUpdate(
                     createUser['_id'],
                     { $push: { address: createLocation['_id'] } },
-                    { new: true },
-                    function (error, update) {
+                    { new: true }).exec((error, update) => {
                       if (error) {
-                        return reject({
+                        return reject(new Error({
                           message: 'Error de actualizacion',
                           code: 504,
                           ok: false
-                        });
+                        }))
                       } else {
                         console.log(
                           "Registro exitoso",
                           JSON.stringify(update)
                         );
                       }
-                    }
-                  );
+                      return false
+                    })
                 }
-              });
+                return false
+              })
             }
             return resolve({
               code: 200,
@@ -182,6 +183,7 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
         });
       }
     }
+    return false
   });
 })
 
@@ -190,11 +192,11 @@ services.loginTechnical = data => new Promise((resolve, reject) => {
     .populate({ path: 'estado_rrhh', model: RRHSchema })
     .exec((err, findUser) => {
       if (err) {
-        reject({
+        reject(new Error({
           code: 500,
           status: 'Internal server error',
           error
-        });
+        }))
       } else {
         if (findUser) {
           let password = bcrypt.compareSync(
@@ -217,12 +219,12 @@ services.loginTechnical = data => new Promise((resolve, reject) => {
             PushNotificationsSchema.findOne({ uuid: data['uuid'] }).exec(
               (err, pushNoti) => {
                 if (err) {
-                  reject({
+                  reject(new Error({
                     code: 500,
                     status: 'Error server internal',
                     err,
                     ok: false
-                  });
+                  }))
                 } else {
                   if (pushNoti) {
                     PushNotificationsSchema.findByIdAndUpdate(
@@ -231,12 +233,12 @@ services.loginTechnical = data => new Promise((resolve, reject) => {
                       { new: true },
                       (err, updatePush) => {
                         if (err) {
-                          reject({
+                          reject(new Error({
                             code: 500,
                             status: "Error server internal",
                             err,
                             ok: false
-                          });
+                          }))
                         } else {
                           TechnicalSchema.findByIdAndUpdate(
                             findUser['_id'],
@@ -244,29 +246,29 @@ services.loginTechnical = data => new Promise((resolve, reject) => {
                             { new: true },
                             (err, userUpdate) => {
                               if (err) {
-                                return reject({
+                                return reject(new Error({
                                   code: 500,
                                   status: 'Error server internal',
                                   err,
                                   ok: false
-                                });
+                                }))
                               } else {
                                 console.log(JSON.stringify(userUpdate));
                               }
-                            }
-                          );
+                              return false
+                            })
                         }
                       }
                     );
                   } else {
                     PushNotificationsSchema.create(token, (err, createToken) => {
                       if (err) {
-                        reject({
+                        reject(new Error({
                           code: 500,
                           status: 'Error server internal',
                           err,
                           ok: false
-                        });
+                        }))
                       } else {
                         TechnicalSchema.findByIdAndUpdate(
                           createUser['_id'],
@@ -274,12 +276,12 @@ services.loginTechnical = data => new Promise((resolve, reject) => {
                           { new: true },
                           (err, userUpdate) => {
                             if (err) {
-                              reject({
+                              reject(new Error({
                                 code: 500,
                                 status: 'Error server internal',
                                 err,
                                 ok: false
-                              });
+                              }))
                             } else {
                               console.log(JSON.stringify(userUpdate));
                             }
@@ -318,6 +320,7 @@ services.loginTechnical = data => new Promise((resolve, reject) => {
           });
         }
       }
+      return false
     });
 })
 
@@ -358,12 +361,9 @@ services.getLocation = (data) => {
 
 
 services.changeStatus = (id_tecnico, data) => new Promise((resolve, reject) => {
-  TechnicalSchema.findById({ _id: id_tecnico }, function (error, userTec) {
+  TechnicalSchema.findById({ _id: id_tecnico }).exec((error, userTec) => {
     if (userTec) {
-      TechnicalSchema.findByIdAndUpdate(userTec._id, data, { new: true }, function (
-        error,
-        tecnico
-      ) {
+      TechnicalSchema.findByIdAndUpdate(userTec._id, data, { new: true }).exec((error, tecnico) => {
         if (error) {
           const fail = {
             ok: false,
@@ -498,7 +498,7 @@ services.aceptarTecnico = id => new Promise((resolve, reject) => {
   const data = { worker: true };
   TechnicalSchema.findByIdAndUpdate(id, data, { new: true })
     .populate({ path: 'estado_rrhh' })
-    .exec(function (err, success) {
+    .exec((err, success) => {
       if (err) {
         const error = {
           ok: false,
@@ -509,6 +509,7 @@ services.aceptarTecnico = id => new Promise((resolve, reject) => {
       } else {
         resolve({ db: success, ok: true })
       }
+      return false
     })
 })
 
@@ -533,7 +534,7 @@ services.newRRHH = body => new Promise((resolve, reject) => {
         }
         resolve(errornew);
       } else {
-        RRHSchema.create(state, function (err, newRRHH) {
+        RRHSchema.create(state, (err, newRRHH) => {
           if (err) {
             reject(err);
           } else {
@@ -581,12 +582,12 @@ services.createAdmin = token => new Promise((resolve, reject) => {
   const users = new TechnicalSchema(jsonAdmin);
   TechnicalSchema.findOne({ email: jsonAdmin.email }).exec((err, succes) => {
     if (err) {
-      return reject({
+      return reject(new Error({
         code: 500,
         status: "Error server internal",
         err,
         ok: false
-      });
+      }))
     } else {
       if (succes) {
         return resolve({
@@ -599,12 +600,12 @@ services.createAdmin = token => new Promise((resolve, reject) => {
         users.password = bcrypt.hashSync("qwerty", 10);
         TechnicalSchema.create(users, (err, userCreate) => {
           if (err) {
-            return reject({
+            return reject(new Error({
               code: 500,
               status: "Error server internal",
               err,
               ok: false
-            });
+            }))
           } else {
             return resolve({
               code: 200,
@@ -616,18 +617,19 @@ services.createAdmin = token => new Promise((resolve, reject) => {
         })
       }
     }
+    return false
   })
 })
 
 services.loginAdmin = data => new Promise((resolve, reject) => {
   TechnicalSchema.findOne({ email: data["email"] }).exec((error, findUser) => {
     if (err) {
-      return reject({
+      return reject(new Error({
         code: 500,
         status: "Error server internal",
         err,
         ok: false
-      })
+      }))
     } else {
       return resolve({
         code: 200,
@@ -664,7 +666,8 @@ services.sendNotificationPush = (role, data) => new Promise((resolve, reject) =>
           if (user["role"] === 3) {
             tokens.push(user["tokens"]["firetoken"]);
           }
-        });
+          return undefined
+        })
         let notification = {
           title: data.titulo,
           body: data.cuerpo

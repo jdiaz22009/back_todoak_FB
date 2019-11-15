@@ -27,17 +27,21 @@ mongoose.connect(config.db.mongodb.atlas, {
 })
 mongoose.connection.on('connected', () => {
   console.log('Mongoose is connected')
+  return true
 })
 
-mongoose.connection.on('Disconnected', function () {
+mongoose.connection.on('Disconnected', () => {
   console.log('Mongoose is disconnected')
-});
+  return false
+})
 
-process.on('SIGINT', function () {
-  mongoose.connection.close(function () {
+process.on('SIGINT', () => {
+  mongoose.connection.close(() => {
     console.log('Mongoose connection is disconnected due to application termination');
     process.exit(0)
+    return false
   });
+  return false
 });
 routesConfig(app)
 
