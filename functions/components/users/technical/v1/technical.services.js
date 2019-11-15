@@ -2,10 +2,10 @@
 const moment = require('../../../../settings/utils/shared/libs/libs')
 const bcrypt = require('bcrypt')
 
-const technicalSchema = require('../technical.model').userTecnicos
-const locationsSchema = require('../technical.model').locationsSchema
+const TechnicalSchema = require('../technical.model').userTecnicos
+const LocationsSchema = require('../technical.model').locationsSchema
 const RRHSchema = require('../technical.model').StateRRHH
-const pushNotificationsSchema = require('../technical.model').pushNotificacion
+const PushNotificationsSchema = require('../technical.model').pushNotificacionsSchema
 
 const services = {}
 
@@ -24,9 +24,9 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
     data['worker'] = true
   }
 
-  const technicalS = new technicalSchema(data)
+  const technicalS = new TechnicalSchema(data)
 
-  technicalSchema.findOne({ email: data['email'] }).exec((err, userFind) => {
+  TechnicalSchema.findOne({ email: data['email'] }).exec((err, userFind) => {
     if (err) {
       return reject({
         code: 500,
@@ -44,7 +44,7 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
         });
       } else {
         technicalS['password'] = bcrypt.hashSync(data['password'], 10);
-        technicalSchema.create(technicalS, (err, createUser) => {
+        TechnicalSchema.create(technicalS, (err, createUser) => {
           if (err) {
             return reject({
               code: 500,
@@ -53,13 +53,13 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
               ok: false
             });
           } else {
-            const token = new pushNotificationsSchema({
+            const token = new PushNotificationsSchema({
               firetoken: data['firetoken'],
               platform: data['platform'],
               usertype: data['role'],
               uuid: data['uuid']
             });
-            pushNotificationsSchema.findOne({ uuid: data['uuid'] }).exec(
+            PushNotificationsSchema.findOne({ uuid: data['uuid'] }).exec(
               (err, pushNoti) => {
                 if (err) {
                   return reject({
@@ -70,7 +70,7 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
                   });
                 } else {
                   if (pushNoti) {
-                    pushNotificationsSchema.findByIdAndUpdate(
+                    PushNotificationsSchema.findByIdAndUpdate(
                       pushNoti['_id'],
                       { firetoken: data['firetoken'] },
                       { new: true },
@@ -83,7 +83,7 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
                             ok: false
                           });
                         } else {
-                          technicalSchema.findByIdAndUpdate(
+                          TechnicalSchema.findByIdAndUpdate(
                             createUser['_id'],
                             { tokens: updatePush['_id'] },
                             { new: true },
@@ -104,7 +104,7 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
                       }
                     );
                   } else {
-                    pushNotificationsSchema.create(token, (err, createToken) => {
+                    PushNotificationsSchema.create(token, (err, createToken) => {
                       if (err) {
                         return reject({
                           code: 500,
@@ -113,7 +113,7 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
                           ok: false
                         });
                       } else {
-                        technicalSchema.findByIdAndUpdate(
+                        TechnicalSchema.findByIdAndUpdate(
                           createUser['_id'],
                           { tokens: createToken['_id'] },
                           { new: true },
@@ -137,13 +137,13 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
               }
             );
             if (data['role'] === 2) {
-              var location = new locationsSchema({
+              var location = new LocationsSchema({
                 nameLocation: data['nameLocation'],
                 addressLocation: data['addressLocation'],
                 lat: data['lat'],
                 lng: data['lng']
               });
-              locationsSchema.create(location, (err, createLocation) => {
+              LocationsSchema.create(location, (err, createLocation) => {
                 if (err) {
                   return reject({
                     message: "Error, por favor espere",
@@ -151,7 +151,7 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
                     ok: false
                   });
                 } else {
-                  technicalSchema.findByIdAndUpdate(
+                  TechnicalSchema.findByIdAndUpdate(
                     createUser['_id'],
                     { $push: { address: createLocation['_id'] } },
                     { new: true },
@@ -186,7 +186,7 @@ services.createdTechnical = data => new Promise((resolve, reject) => {
 })
 
 services.loginTechnical = data => new Promise((resolve, reject) => {
-  technicalSchema.findOne({ email: data['email'] })
+  TechnicalSchema.findOne({ email: data['email'] })
     .populate({ path: 'estado_rrhh', model: RRHSchema })
     .exec((err, findUser) => {
       if (err) {
@@ -208,13 +208,13 @@ services.loginTechnical = data => new Promise((resolve, reject) => {
               message: 'invalid credential'
             });
           } else {
-            const token = new pushNotificationsSchema({
+            const token = new PushNotificationsSchema({
               firetoken: data['firetoken'],
               platform: data['platform'],
               usertype: data['role'],
               uuid: data['uuid']
             });
-            pushNotificationsSchema.findOne({ uuid: data['uuid'] }).exec(
+            PushNotificationsSchema.findOne({ uuid: data['uuid'] }).exec(
               (err, pushNoti) => {
                 if (err) {
                   reject({
@@ -225,7 +225,7 @@ services.loginTechnical = data => new Promise((resolve, reject) => {
                   });
                 } else {
                   if (pushNoti) {
-                    pushNotificationsSchema.findByIdAndUpdate(
+                    PushNotificationsSchema.findByIdAndUpdate(
                       pushNoti['_id'],
                       { firetoken: data['firetoken'] },
                       { new: true },
@@ -238,7 +238,7 @@ services.loginTechnical = data => new Promise((resolve, reject) => {
                             ok: false
                           });
                         } else {
-                          technicalSchema.findByIdAndUpdate(
+                          TechnicalSchema.findByIdAndUpdate(
                             findUser['_id'],
                             { tokens: updatePush['_id'] },
                             { new: true },
@@ -259,7 +259,7 @@ services.loginTechnical = data => new Promise((resolve, reject) => {
                       }
                     );
                   } else {
-                    pushNotificationsSchema.create(token, (err, createToken) => {
+                    PushNotificationsSchema.create(token, (err, createToken) => {
                       if (err) {
                         reject({
                           code: 500,
@@ -268,7 +268,7 @@ services.loginTechnical = data => new Promise((resolve, reject) => {
                           ok: false
                         });
                       } else {
-                        technicalSchema.findByIdAndUpdate(
+                        TechnicalSchema.findByIdAndUpdate(
                           createUser['_id'],
                           { tokens: createToken['_id'] },
                           { new: true },
@@ -324,7 +324,7 @@ services.loginTechnical = data => new Promise((resolve, reject) => {
 
 services.getLocation = (data) => {
   return new Promise((resolve, reject) => {
-    technicalSchema.findById(data).exec((error, res) => {
+    TechnicalSchema.findById(data).exec((error, res) => {
       if (error) {
         const fail = {
           ok: false,
@@ -333,7 +333,7 @@ services.getLocation = (data) => {
         };
         reject(fail);
       } else {
-        locationsSchema.findById(res.address).exec((err, locations) => {
+        LocationsSchema.findById(res.address).exec((err, locations) => {
           if (err) {
             const erro = {
               ok: false,
@@ -358,9 +358,9 @@ services.getLocation = (data) => {
 
 
 services.changeStatus = (id_tecnico, data) => new Promise((resolve, reject) => {
-  technicalSchema.findById({ _id: id_tecnico }, function (error, userTec) {
+  TechnicalSchema.findById({ _id: id_tecnico }, function (error, userTec) {
     if (userTec) {
-      technicalSchema.findByIdAndUpdate(userTec._id, data, { new: true }, function (
+      TechnicalSchema.findByIdAndUpdate(userTec._id, data, { new: true }, function (
         error,
         tecnico
       ) {
@@ -394,7 +394,7 @@ services.changeStatus = (id_tecnico, data) => new Promise((resolve, reject) => {
 })
 
 services.technicalAvailable = params => new Promise((resolve, reject) => {
-  technicalSchema.find(params).exec((error, tecnico) => {
+  TechnicalSchema.find(params).exec((error, tecnico) => {
     if (error) {
       const fail = {
         ok: false,
@@ -415,7 +415,7 @@ services.technicalAvailable = params => new Promise((resolve, reject) => {
 
 
 services.getAllUser = () => new Promise((resolve, reject) => {
-  technicalSchema.find({}).exec((err, result) => {
+  TechnicalSchema.find({}).exec((err, result) => {
     if (err) {
       const error = {
         ok: false,
@@ -430,7 +430,7 @@ services.getAllUser = () => new Promise((resolve, reject) => {
 })
 
 services.getAllUserClient = () => new Promise((resolve, reject) => {
-  technicalSchema.find({ role: 3 }).exec((err, result) => {
+  TechnicalSchema.find({ role: 3 }).exec((err, result) => {
     if (err) {
       const error = {
         ok: false,
@@ -446,7 +446,7 @@ services.getAllUserClient = () => new Promise((resolve, reject) => {
 
 
 services.getAllTechnical = () => new Promise((resolve, reject) => {
-  technicalSchema.find({ role: 3 })
+  TechnicalSchema.find({ role: 3 })
     .populate({ path: 'estado_rrhh' })
     .exec((err, result) => {
       if (err) {
@@ -463,7 +463,7 @@ services.getAllTechnical = () => new Promise((resolve, reject) => {
 })
 
 services.getAllTechnicalFree = () => new Promise((resolve, reject) => {
-  technicalSchema.find({ role: 3, stateConect: true, state: false })
+  TechnicalSchema.find({ role: 3, stateConect: true, state: false })
     .populate({ path: 'estado_rrhh' })
     .exec((err, result) => {
       if (err) {
@@ -480,7 +480,7 @@ services.getAllTechnicalFree = () => new Promise((resolve, reject) => {
 })
 
 services.getAllTecnicosNew = () => new Promise((resolve, reject) => {
-  technicalSchema.find({ role: 3, worker: false }).exec((err, result) => {
+  TechnicalSchema.find({ role: 3, worker: false }).exec((err, result) => {
     if (err) {
       const error = {
         ok: false,
@@ -496,7 +496,7 @@ services.getAllTecnicosNew = () => new Promise((resolve, reject) => {
 
 services.aceptarTecnico = id => new Promise((resolve, reject) => {
   const data = { worker: true };
-  technicalSchema.findByIdAndUpdate(id, data, { new: true })
+  TechnicalSchema.findByIdAndUpdate(id, data, { new: true })
     .populate({ path: 'estado_rrhh' })
     .exec(function (err, success) {
       if (err) {
@@ -512,39 +512,38 @@ services.aceptarTecnico = id => new Promise((resolve, reject) => {
     })
 })
 
-services.newRRHH = body =>
-  new Promise((resolve, reject) => {
-    const state = new RRHH({
-      name: body.nombre,
-      description: body.descripcion,
-      sequence: body.secuencia
-    });
+services.newRRHH = body => new Promise((resolve, reject) => {
+  const state = new RRHSchema({
+    name: body.nombre,
+    description: body.descripcion,
+    sequence: body.secuencia
+  });
 
-    RRHSchema.findOne({ secuencia: body.secuencia }).exec((error, objRRHH) => {
-      if (error) {
-        reject(error);
-      } else {
-        if (objRRHH) {
-          const errornew = {
-            ok: false,
-            status: 400,
-            error: {
-              message: "El estado ya existe"
-            }
+  RRHSchema.findOne({ secuencia: body.secuencia }).exec((error, objRRHH) => {
+    if (error) {
+      reject(error);
+    } else {
+      if (objRRHH) {
+        const errornew = {
+          ok: false,
+          status: 400,
+          error: {
+            message: "El estado ya existe"
           }
-          resolve(errornew);
-        } else {
-          RRHSchema.create(state, function (err, newRRHH) {
-            if (err) {
-              reject(err);
-            } else {
-              resolve({ db: newRRHH, ok: true });
-            }
-          })
         }
+        resolve(errornew);
+      } else {
+        RRHSchema.create(state, function (err, newRRHH) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve({ db: newRRHH, ok: true });
+          }
+        })
       }
-    })
+    }
   })
+})
 
 
 services.getRRHH = id => new Promise((resolve, reject) => {
@@ -579,8 +578,8 @@ services.createAdmin = token => new Promise((resolve, reject) => {
     name: "admin",
     lastname: "name"
   };
-  const users = new technicalSchema(jsonAdmin);
-  technicalSchema.findOne({ email: jsonAdmin.email }).exec((err, succes) => {
+  const users = new TechnicalSchema(jsonAdmin);
+  TechnicalSchema.findOne({ email: jsonAdmin.email }).exec((err, succes) => {
     if (err) {
       return reject({
         code: 500,
@@ -598,7 +597,7 @@ services.createAdmin = token => new Promise((resolve, reject) => {
         });
       } else {
         users.password = bcrypt.hashSync("qwerty", 10);
-        technicalSchema.create(users, (err, userCreate) => {
+        TechnicalSchema.create(users, (err, userCreate) => {
           if (err) {
             return reject({
               code: 500,
@@ -621,7 +620,7 @@ services.createAdmin = token => new Promise((resolve, reject) => {
 })
 
 services.loginAdmin = data => new Promise((resolve, reject) => {
-  technicalSchema.findOne({ email: data["email"] }).exec((error, findUser) => {
+  TechnicalSchema.findOne({ email: data["email"] }).exec((error, findUser) => {
     if (err) {
       return reject({
         code: 500,
@@ -656,7 +655,7 @@ services.loginAdmin = data => new Promise((resolve, reject) => {
 
 services.sendNotificationPush = (role, data) => new Promise((resolve, reject) => {
   if (role === '3') {
-    technicalSchema.find({ role }).populate({ path: "tokens", model: PushNotifications }).exec((err, docs) => {
+    technicalSchema.find({ role }).populate({ path: "tokens", model: pushNotificationsSchema }).exec((err, docs) => {
       if (err) {
         reject(err)
       } else {

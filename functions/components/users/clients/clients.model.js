@@ -44,7 +44,7 @@ ClientSchema.methods.toJSON = function () {
   return userObject;
 };
 
-var pushNotificacionWebSchema = mongoose.model('pushNotificacions', PushNotificationsWebSchema);
+var pushNotificacionWebSchema = mongoose.model('pushNotificacionsWebs', PushNotificationsWebSchema);
 var clientSchema = mongoose.model('userClientes', ClientSchema)
 module.exports.clientSchema = clientSchema
 module.exports.pushNotificacionWebSchema = pushNotificacionWebSchema

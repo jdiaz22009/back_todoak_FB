@@ -14,40 +14,42 @@ services.createCategories = data => new Promise((resolve, reject) => {
   categories.findOne({ nameCategory: data.nameCategory })
     .exec((err, findCa) => {
       if (err) {
-        reject({
+        return reject(new Error({
           ok: false,
           code: 503,
           message: 'Error',
           err
-        })
+        }))
       } else {
         if (findCa) {
-          resolve({
+          return resolve({
             ok: false,
             message: 'Ya se encuentra esta categoria',
             findCa
           })
         } else {
           const newCategorie = new categories(data)
-          categories.create(newCategorie, function (err, createC) {
+          categories.create(newCategorie, (err, createC) => {
             if (err) {
               const error = {
                 ok: false,
                 status: 400,
                 err
               }
-              reject(error)
+              return reject(new Error(error))
             } else {
               const save = {
                 ok: true,
                 status: 200,
                 createC
               }
-              resolve(save)
+              return resolve(save)
             }
+
           })
         }
       }
+      return false
     })
 })
 
@@ -80,7 +82,7 @@ services.getSearchCheck = data => new Promise((resolve, reject) => {
     .populate({ path: 'id_subcategory', model: subCategories })
     .exec((err, finCa) => {
       if (err) {
-        reject({ ok: false, status: 500, message: 'Internal serve error', err })
+        reject(new Error({ ok: false, status: 500, message: 'Internal serve error', err }))
       } else {
         resolve({ ok: true, status: 200, message: 'OK', finCa })
       }
@@ -94,11 +96,11 @@ services.createSubcategorie = data => new Promise((resolve, reject) => {
     id_category: data['id_category']
   }).exec((err, findSub) => {
     if (err) {
-      reject({
+      reject(new Error({
         ok: false,
         code: 500,
         message: 'Error internal serve'
-      })
+      }))
     } else {
       if (findSub) {
         const body = {
@@ -108,11 +110,11 @@ services.createSubcategorie = data => new Promise((resolve, reject) => {
         subCategories.findByIdAndUpdate(findSub['_id'], { $push: { SubCategorie: body } }, { new: true })
           .exec((err, succes) => {
             if (err) {
-              reject({
+              reject(new Error({
                 ok: false,
                 status: 400,
                 err
-              })
+              }))
             } else {
               resolve({
                 ok: true,
@@ -123,14 +125,15 @@ services.createSubcategorie = data => new Promise((resolve, reject) => {
           })
       } else {
         const subCatego = new subCategories(data)
-        subCategories.create(subCatego, function (err, success) {
+        /*eslint prefer-arrow-callback: ["error", { "allowNamedFunctions": true }]*/
+        subCategories.create(subCatego, (err, success) => {
           if (err) {
-            reject({
+            reject(new Error({
               ok: false,
               status: 400,
               message: "error al crear la subcategoria",
               err
-            })
+            }))
           } else {
             categories.findByIdAndUpdate(data['id_category'], { id_subcategory: success['_id'] }, { new: true })
               .exec((error, cateUpdate) => {
@@ -141,7 +144,7 @@ services.createSubcategorie = data => new Promise((resolve, reject) => {
                     message: "error",
                     error
                   };
-                  reject(err);
+                  reject(new Error(err));
                 } else {
                   const succe = {
                     ok: true,

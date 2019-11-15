@@ -44,11 +44,9 @@ controller.getSearchCheck = (req, res) => {
 controller.createSubcategorie = (req, res) => {
   const { body } = req
   return service.createSubcategorie(body)
-    .then(response => {
-      res.json(response)
-
-    })
-    .catch(error =>
+    .then((response) => res.json(response)
+    )
+    .catch((error) =>
       res.status(400).json({
         OK: false,
         code: 400,

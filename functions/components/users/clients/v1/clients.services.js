@@ -1,5 +1,5 @@
 'use strict'
-const moment = require('../../../../settings/utils/shared/moments/moments')
+const moment = require('../../../../settings/utils/shared/libs/libs')
 const bcrypt = require('bcrypt')
 const services = {}
 //model schema mongoose

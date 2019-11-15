@@ -69,12 +69,12 @@ TechnicalSchema.methods.toJSON = function () {
 };
 
 var userTecnicos = mongoose.model('userTecnicos', TechnicalSchema)
-var pushNotificacion = mongoose.model('pushNotificacions', PushNotificationsSchema)
+var pushNotificacionsSchema = mongoose.model('pushNotificacions', PushNotificationsSchema)
 var locationsSchema = mongoose.model("locations", LocationsSchema);
 var stateRRHH = mongoose.model("staterrhhs", StateRRHHSchema);
 
 module.exports.userTecnicos = userTecnicos;
-module.exports.pushNotificacion = pushNotificacion;
+module.exports.pushNotificacionsSchema = pushNotificacionsSchema;
 module.exports.locationsSchema = locationsSchema;
 module.exports.StateRRHH = stateRRHH;
 

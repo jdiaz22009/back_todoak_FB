@@ -14,7 +14,7 @@ router.get('/get-locations/:id_cliente', controller.getLocations)
 router.put('/change-status/:id_tecnico', controller.changestatus)
 router.get('/tecni-diponible/:state/:stateConect', controller.technicalAvailable)
 router.get('/get-users', controller.getAllUser)
-router.get('/get-users-client', controller.getAllUserClientet)
+router.get('/get-users-client', controller.getAllUserClient)
 router.post('/acept-tecnico/:id', controller.acceptTechnical)
 
 router.get('/get-tecnicos-new', controller.getAllTechnicalNew);
