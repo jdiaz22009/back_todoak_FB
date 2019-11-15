@@ -445,9 +445,9 @@ services.getAllUserClient = () => new Promise((resolve, reject) => {
 })
 
 
-getAllTecnicos = () => new Promise((resolve, reject) => {
+services.getAllTechnical = () => new Promise((resolve, reject) => {
   technicalSchema.find({ role: 3 })
-    .populate({ path: "estado_rrhh" })
+    .populate({ path: 'estado_rrhh' })
     .exec((err, result) => {
       if (err) {
         const error = {
@@ -456,10 +456,193 @@ getAllTecnicos = () => new Promise((resolve, reject) => {
           err
         }
         reject(error)
+      } else {
+        resolve({ db: result, ok: true })
       }
-      resolve({ db: result, ok: true })
     })
 })
+
+services.getAllTechnicalFree = () => new Promise((resolve, reject) => {
+  technicalSchema.find({ role: 3, stateConect: true, state: false })
+    .populate({ path: 'estado_rrhh' })
+    .exec((err, result) => {
+      if (err) {
+        const error = {
+          ok: false,
+          status: 500,
+          err
+        };
+        reject(error);
+      } else {
+        resolve({ db: result, ok: true })
+      }
+    })
+})
+
+services.getAllTecnicosNew = () => new Promise((resolve, reject) => {
+  technicalSchema.find({ role: 3, worker: false }).exec((err, result) => {
+    if (err) {
+      const error = {
+        ok: false,
+        status: 500,
+        err
+      };
+      reject(error);
+    } else {
+      resolve({ db: result, ok: true })
+    }
+  })
+})
+
+services.aceptarTecnico = id => new Promise((resolve, reject) => {
+  const data = { worker: true };
+  technicalSchema.findByIdAndUpdate(id, data, { new: true })
+    .populate({ path: 'estado_rrhh' })
+    .exec(function (err, success) {
+      if (err) {
+        const error = {
+          ok: false,
+          status: 500,
+          err
+        };
+        reject(error)
+      } else {
+        resolve({ db: success, ok: true })
+      }
+    })
+})
+
+services.newRRHH = body =>
+  new Promise((resolve, reject) => {
+    const state = new RRHH({
+      name: body.nombre,
+      description: body.descripcion,
+      sequence: body.secuencia
+    });
+
+    RRHSchema.findOne({ secuencia: body.secuencia }).exec((error, objRRHH) => {
+      if (error) {
+        reject(error);
+      } else {
+        if (objRRHH) {
+          const errornew = {
+            ok: false,
+            status: 400,
+            error: {
+              message: "El estado ya existe"
+            }
+          }
+          resolve(errornew);
+        } else {
+          RRHSchema.create(state, function (err, newRRHH) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve({ db: newRRHH, ok: true });
+            }
+          })
+        }
+      }
+    })
+  })
+
+
+services.getRRHH = id => new Promise((resolve, reject) => {
+  RRHSchema.findById(id).exec((error, objRRHH) => {
+    if (error) {
+      reject(error);
+    } else {
+      resolve({ db: objRRHH, ok: true });
+    }
+  })
+})
+
+
+services.getAllRRHH = () =>
+  new Promise((resolve, reject) => {
+    RRHSchema.find({}).exec((error, objRRHH) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve({ db: objRRHH, ok: true })
+      }
+    })
+  })
+
+
+
+
+services.createAdmin = token => new Promise((resolve, reject) => {
+  let jsonAdmin = {
+    email: "admin@todoak.com",
+    isadmin: true,
+    name: "admin",
+    lastname: "name"
+  };
+  const users = new technicalSchema(jsonAdmin);
+  technicalSchema.findOne({ email: jsonAdmin.email }).exec((err, succes) => {
+    if (err) {
+      return reject({
+        code: 500,
+        status: "Error server internal",
+        err,
+        ok: false
+      });
+    } else {
+      if (succes) {
+        return resolve({
+          code: 200,
+          status: "OK",
+          message: "User already exists",
+          ok: true
+        });
+      } else {
+        users.password = bcrypt.hashSync("qwerty", 10);
+        technicalSchema.create(users, (err, userCreate) => {
+          if (err) {
+            return reject({
+              code: 500,
+              status: "Error server internal",
+              err,
+              ok: false
+            });
+          } else {
+            return resolve({
+              code: 200,
+              status: "OK",
+              message: "Admin created",
+              ok: true
+            })
+          }
+        })
+      }
+    }
+  })
+})
+
+services.loginAdmin = data => new Promise((resolve, reject) => {
+  technicalSchema.findOne({ email: data["email"] }).exec((error, findUser) => {
+    if (err) {
+      return reject({
+        code: 500,
+        status: "Error server internal",
+        err,
+        ok: false
+      })
+    } else {
+      return resolve({
+        code: 200,
+        status: "OK",
+        message: `Admin login: ${findUser}`,
+        ok: true
+      })
+    }
+  })
+})
+
+
+
+
 
 
 
