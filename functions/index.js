@@ -15,7 +15,19 @@ const app = express()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(morgan('dev'))
-app.use(cors())
+app.use(cors({ origin: true }))
+
+
+//CORS ORIGIN MIDELWARE
+app.use((req, res, next) => {
+
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'X-API-KEY, Origin, X-Requested-Width, Content-Type, Accept,Access-Control-Request-Method,Authorization,territoken');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
+  res.header('Allow', 'GET, POST,OPTIONS,PUT,DELETE');
+  return next();
+})
+
 
 // connect mongoose
 mongoose.connect(config.db.mongodb.atlas, {
@@ -39,10 +51,10 @@ process.on('SIGINT', () => {
   mongoose.connection.close(() => {
     console.log('Mongoose connection is disconnected due to application termination');
     process.exit(0)
-    return false
   });
   return false
 });
+
 routesConfig(app)
 
 exports.api = functions.https.onRequest(app)
