@@ -1438,6 +1438,7 @@ services.getListA = data => new Promise((resolve, reject) => {
       return reject(new Error({ code: 500, message: "error internal server", error }))
     } else {
       if (userTecnico) {
+        
         if (userTecnico["role"] === 3) {
           if (userTecnico["stateConect"]) {
             serviceCli
