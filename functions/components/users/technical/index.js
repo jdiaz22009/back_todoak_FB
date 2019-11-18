@@ -32,17 +32,6 @@ router.post('/changestate/:id', controller.changeState)
 router.get('/create/admin', controller.createAdmin)
 router.post("/login/admin", controller.loginAdmin)
 
-
-
-
-
-
-
-
-
-
-
-
 // send notification
 router.post('/notifficacion/push/:role', controller.sendNotificationPush)
 
