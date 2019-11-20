@@ -17,7 +17,7 @@ router.put('/create-service-tecnico-web/:serviceid', controller.createTecnicoPos
 router.get('/get-price/:id_service', controller.getPrice)
 router.get('/get-price-web/:id_service', controller.getPriceWeb)
 router.put('/update-state/:id_service', controller.updateState)
-router.put('/update-state-web/:id_service', controller.updateStateWeb)
+//router.put('/update-state-web/:id_service', controller.updateStateWeb)
 router.put('/update-tomado/:id_service', controller.updateTomado)
 router.put('/update-tomado-web/:id_service', controller.updateTomadoWeb)
 router.get('/my-service/:id_tecnico', controller.getMyservice)

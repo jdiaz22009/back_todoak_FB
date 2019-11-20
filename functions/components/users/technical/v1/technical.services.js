@@ -462,6 +462,56 @@ services.getAllTechnical = () => new Promise((resolve, reject) => {
     })
 })
 
+services.getTechnical = (id) => new Promise((resolve, reject) => {
+  TechnicalSchema.findById(id)
+    .populate({ path: 'estado_rrhh' })
+    .exec((err, result) => {
+      if (err) {
+        const error = {
+          ok: false,
+          status: 500,
+          err
+        }
+        reject(error)
+      } else {
+        resolve({ db: result, ok: true })
+      }
+    })
+})
+
+services.getTechnicalAct = () => new Promise((resolve, reject) => {
+  TechnicalSchema.find({ role: 3, worker: true })
+    .populate({ path: 'estado_rrhh' })
+    .exec((err, result) => {
+      if (err) {
+        const error = {
+          ok: false,
+          status: 500,
+          err
+        };
+        reject(error);
+      } else {
+        resolve({ db: result, ok: true })
+      }
+    })
+})
+
+services.getAllTechnicalNew = () => new Promise((resolve, reject) => {
+  TechnicalSchema.find({ role: 3, worker: false })
+    .populate({ path: 'estado_rrhh' })
+    .exec((err, result) => {
+      if (err) {
+        const error = {
+          ok: false,
+          status: 500,
+          err
+        };
+        reject(error);
+      } else {
+        resolve({ db: result, ok: true })
+      }
+    })
+})
 services.getAllTechnicalFree = () => new Promise((resolve, reject) => {
   TechnicalSchema.find({ role: 3, stateConect: true, state: false })
     .populate({ path: 'estado_rrhh' })

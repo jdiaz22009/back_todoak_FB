@@ -61,7 +61,7 @@ controller.getAllUserClient = (req, res) => {
 
 controller.getTechnical = (req, res) => {
   const { params } = req;
-  return service.getAllTechnical(params['id'])
+  return service.getTechnical(params['id'])
     .then(result => res.json(result))
     .catch(err => res.status(500).json(err))
 }
