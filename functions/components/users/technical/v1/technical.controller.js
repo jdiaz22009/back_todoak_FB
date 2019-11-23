@@ -137,9 +137,8 @@ controller.createAdmin = (req, res) => {
 }
 
 controller.loginAdmin = (req, res) => {
-  const id = req.params.id;
   const body = req.body;
-  return service.loginAdmin(id, body)
+  return service.loginAdmin(body)
     .then(response => res.send(response))
     .catch(error => res.status(400).json(error));
 }

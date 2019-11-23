@@ -671,13 +671,13 @@ services.createAdmin = token => new Promise((resolve, reject) => {
   })
 })
 
-services.loginAdmin = data => new Promise((resolve, reject) => {
+services.loginAdmin = (data) => new Promise((resolve, reject) => {
   TechnicalSchema.findOne({ email: data["email"] }).exec((error, findUser) => {
-    if (err) {
+    if (error) {
       return reject(new Error({
         code: 500,
         status: "Error server internal",
-        err,
+        error,
         ok: false
       }))
     } else {
