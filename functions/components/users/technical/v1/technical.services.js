@@ -685,6 +685,7 @@ services.loginAdmin = (data) => new Promise((resolve, reject) => {
         code: 200,
         status: "OK",
         message: `Admin login: ${findUser}`,
+        data: findUser,
         ok: true
       })
     }
