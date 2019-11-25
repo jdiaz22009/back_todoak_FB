@@ -692,6 +692,33 @@ services.loginAdmin = (data) => new Promise((resolve, reject) => {
   })
 })
 
+services.changeState = (id, body) => new Promise((resolve, reject) => {
+  TechnicalSchema.findById(id, (errTec, tecnico) => {
+    if (errTec) {
+      return reject(new Error(errTec));
+    } else {
+      RRHSchema.findById(body.id, (errRRHH, rrhh) => {
+        if (errRRHH) {
+          return reject(new Error(rrhh));
+        } else {
+          TechnicalSchema.findByIdAndUpdate(id, { estado_rrhh: rrhh._id }, { new: true })
+            .populate({ path: "estado_rrhh" })
+            .exec((error, update) => {
+              if (error) {
+                return reject(new Error(error));
+              } else {
+                return resolve({ db: update, ok: true });
+              }
+            });
+        }
+        return false
+      });
+    }
+    return false
+  });
+});
+
+
 
 
 
