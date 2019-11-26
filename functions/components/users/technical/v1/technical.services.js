@@ -632,7 +632,7 @@ services.createAdmin = token => new Promise((resolve, reject) => {
   const users = new TechnicalSchema(jsonAdmin);
   TechnicalSchema.findOne({ email: jsonAdmin.email }).exec((err, succes) => {
     if (err) {
-      return reject(new Error({
+      reject(new Error({
         code: 500,
         status: "Error server internal",
         err,
@@ -640,7 +640,7 @@ services.createAdmin = token => new Promise((resolve, reject) => {
       }))
     } else {
       if (succes) {
-        return resolve({
+        resolve({
           code: 200,
           status: "OK",
           message: "User already exists",
@@ -650,14 +650,14 @@ services.createAdmin = token => new Promise((resolve, reject) => {
         users.password = bcrypt.hashSync("qwerty", 10);
         TechnicalSchema.create(users, (err, userCreate) => {
           if (err) {
-            return reject(new Error({
+            reject(new Error({
               code: 500,
               status: "Error server internal",
               err,
               ok: false
             }))
           } else {
-            return resolve({
+            resolve({
               code: 200,
               status: "OK",
               message: "Admin created",
@@ -674,14 +674,14 @@ services.createAdmin = token => new Promise((resolve, reject) => {
 services.loginAdmin = (data) => new Promise((resolve, reject) => {
   TechnicalSchema.findOne({ email: data["email"] }).exec((error, findUser) => {
     if (error) {
-      return reject(new Error({
+      reject(new Error({
         code: 500,
         status: "Error server internal",
         error,
         ok: false
       }))
     } else {
-      return resolve({
+      resolve({
         code: 200,
         status: "OK",
         message: `Admin login: ${findUser}`,
@@ -691,6 +691,28 @@ services.loginAdmin = (data) => new Promise((resolve, reject) => {
     }
   })
 })
+
+
+
+services.acceptTechnical = id => new Promise((resolve, reject) => {
+  const data = { worker: true };
+  User.findByIdAndUpdate(id, data, { new: true })
+    .populate({ path: "estado_rrhh" })
+    .exec((err, success) => {
+      if (err) {
+        const error = {
+          ok: false,
+          status: 500,
+          err
+        };
+        reject(error);
+      } else {
+        resolve({ db: success, ok: true });
+      }
+      return false
+    });
+});
+
 
 services.changeState = (id, body) => new Promise((resolve, reject) => {
   TechnicalSchema.findById(id, (errTec, tecnico) => {

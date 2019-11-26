@@ -48,6 +48,6 @@ router.get("/get-services-web/:id", controller.getServicesWebByID)
 router.get("/get-services/:id", controller.getServiceByID)
 router.put("/saveAplazar", controller.saveUpdatePostpone)
 router.put("/addListA", controller.addListA)
-router.get("/getlistA/:id", controller.getListA); // falta
+router.get("/getlistA/:id", controller.getListA)
 
 module.exports = router
